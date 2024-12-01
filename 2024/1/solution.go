@@ -64,6 +64,48 @@ func part1() {
 	fmt.Println(total)
 }
 
+func part2() {
+	file, err := os.Open("input1.txt")
+	if err != nil {
+		panic(err)
+	}
+
+	defer file.Close()
+
+	left := []int{}
+	right := map[int]int{}
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		nums := strings.Split(scanner.Text(), "   ")
+		i, err := strconv.Atoi(nums[0])
+		if err != nil {
+			panic(err)
+		}
+		left = append(left, i)
+		i, err = strconv.Atoi(nums[1])
+		if err != nil {
+			panic(err)
+		}
+
+		right[i] += 1
+	}
+
+	if err := scanner.Err(); err != nil {
+		panic(err)
+	}
+
+	total := 0
+
+	for i := 0; i < len(left); i++ {
+		cnt := right[left[i]]
+		total += cnt * left[i]
+	}
+
+	fmt.Println(total)
+}
+
 func main() {
 	part1()
+	part2()
 }
