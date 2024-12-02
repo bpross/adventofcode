@@ -13,7 +13,7 @@ func part1() {
 	right := []int{}
 	left := []int{}
 
-	lineFunc := func(line string) error {
+	lineFunc := func(line string, _ int) error {
 		nums := strings.Split(line, "   ")
 		i, err := strconv.Atoi(nums[0])
 		if err != nil {
@@ -56,7 +56,7 @@ func part2() {
 	left := []int{}
 	right := map[int]int{}
 
-	lineFunc := func(line string) error {
+	lineFunc := func(line string, _ int) error {
 		nums := strings.Split(line, "   ")
 		i, err := strconv.Atoi(nums[0])
 		if err != nil {
