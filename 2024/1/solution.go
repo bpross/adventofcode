@@ -1,35 +1,20 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/bpross/adventofcode/utils"
 )
 
-func abs(x, y int) int {
-	if x < y {
-		return y - x
-	}
-	return x - y
-}
-
 func part1() {
-	file, err := os.Open("input1.txt")
-	if err != nil {
-		panic(err)
-	}
-
-	defer file.Close()
-
 	right := []int{}
 	left := []int{}
 
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		nums := strings.Split(scanner.Text(), "   ")
+	lineFunc := func(line string) error {
+		nums := strings.Split(line, "   ")
 		i, err := strconv.Atoi(nums[0])
 		if err != nil {
 			panic(err)
@@ -40,9 +25,12 @@ func part1() {
 			panic(err)
 		}
 		right = append(right, i)
+
+		return nil
 	}
 
-	if err := scanner.Err(); err != nil {
+	err := utils.ReadFile("input1.txt", lineFunc)
+	if err != nil {
 		panic(err)
 	}
 
@@ -57,7 +45,7 @@ func part1() {
 	total := 0
 
 	for i := 0; i < len(left); i++ {
-		dist := abs(left[i], right[i])
+		dist := utils.Abs(left[i], right[i])
 		total += dist
 	}
 
@@ -65,19 +53,11 @@ func part1() {
 }
 
 func part2() {
-	file, err := os.Open("input1.txt")
-	if err != nil {
-		panic(err)
-	}
-
-	defer file.Close()
-
 	left := []int{}
 	right := map[int]int{}
 
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		nums := strings.Split(scanner.Text(), "   ")
+	lineFunc := func(line string) error {
+		nums := strings.Split(line, "   ")
 		i, err := strconv.Atoi(nums[0])
 		if err != nil {
 			panic(err)
@@ -89,9 +69,12 @@ func part2() {
 		}
 
 		right[i] += 1
+
+		return nil
 	}
 
-	if err := scanner.Err(); err != nil {
+	err := utils.ReadFile("input1.txt", lineFunc)
+	if err != nil {
 		panic(err)
 	}
 
