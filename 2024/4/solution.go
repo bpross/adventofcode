@@ -31,7 +31,6 @@ func dfs(graph [][]string, i, j int, path string, s []steps, direction Direction
 	}
 
 	if path == "XMAS" {
-		fmt.Println(i, j, path, s, direction)
 		return 1
 	}
 
@@ -85,6 +84,27 @@ func dfs(graph [][]string, i, j int, path string, s []steps, direction Direction
 	return total
 }
 
+func checkAs(graph [][]string, i, j int) bool {
+	if i-1 < 0 || j-1 < 0 || i+1 >= len(graph) || j+1 >= len(graph[i]) {
+		return false
+	}
+	topLeft := graph[i-1][j-1]
+	topRight := graph[i-1][j+1]
+	bottomLeft := graph[i+1][j-1]
+	bottomRight := graph[i+1][j+1]
+
+	firstValid, secondValid := false, false
+	if (topLeft == "S" && bottomRight == "M") || (topLeft == "M" && bottomRight == "S") {
+		firstValid = true
+	}
+
+	if (topRight == "S" && bottomLeft == "M") || (topRight == "M" && bottomLeft == "S") {
+		secondValid = true
+	}
+
+	return firstValid && secondValid
+}
+
 func part1() {
 	graph := [][]string{}
 
@@ -117,6 +137,37 @@ func part1() {
 	fmt.Println(total)
 }
 
+func part2() {
+	graph := [][]string{}
+
+	lineFunc := func(line string, _ int) error {
+		row := make([]string, len(line))
+		for i, c := range line {
+			row[i] = string(c)
+		}
+		graph = append(graph, row)
+		return nil
+	}
+
+	err := utils.ReadFile("input.txt", lineFunc)
+	if err != nil {
+		panic(err)
+	}
+
+	total := 0
+	for i, row := range graph {
+		for j, c := range row {
+			if c == "A" {
+				if graph[i][j] == "A" && checkAs(graph, i, j) {
+					total++
+				}
+			}
+		}
+	}
+	fmt.Println(total)
+}
+
 func main() {
 	part1()
+	part2()
 }
