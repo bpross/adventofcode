@@ -9,7 +9,11 @@ import (
 	"github.com/bpross/adventofcode/utils"
 )
 
-var cache = map[int][]int{}
+type cacheKey struct {
+	val, depth int
+}
+
+var cache = map[cacheKey]int{}
 
 func splitValue(value int) []int {
 	valueSplit := []int{}
@@ -23,12 +27,7 @@ func splitValue(value int) []int {
 }
 
 func performRules(s int) []int {
-	if res, ok := cache[s]; ok {
-		return res
-	}
-
 	if s == 0 {
-		cache[s] = []int{1}
 		return []int{1}
 	}
 
@@ -50,15 +49,32 @@ func performRules(s int) []int {
 			mult *= 10
 		}
 		res := []int{second, first}
-		cache[s] = res
 		return res
 	}
 
 	// multiple value by 2024
 	n := 2024 * s
 	res := []int{n}
-	cache[s] = res
 	return res
+}
+
+func dfs(s, depth int) int {
+	if depth == 75 {
+		return 1
+	}
+
+	if val, ok := cache[cacheKey{s, depth}]; ok {
+		return val
+	}
+
+	ns := performRules(s)
+	total := 0
+	for _, n := range ns {
+		total += dfs(n, depth+1)
+	}
+
+	cache[cacheKey{s, depth}] = total
+	return total
 }
 
 func part1() {
@@ -86,19 +102,16 @@ func part1() {
 
 	blinks := 25
 
+	start := time.Now()
 	for i := 0; i < blinks; i++ {
-		start := time.Now()
 		newints := []int{}
 		for _, s := range ints {
 			newints = append(newints, performRules(s)...)
 		}
-
-		end := time.Now()
-		fmt.Println("Blink", i, "took", end.Sub(start), "len", len(newints))
 		ints = newints
 	}
-
-	fmt.Println(len(ints))
+	end := time.Now()
+	fmt.Println("Total", len(ints), "took", end.Sub(start))
 }
 
 func part2() {
@@ -124,20 +137,14 @@ func part2() {
 
 	fmt.Println(ints)
 
-	blinks := 75
-
-	for i := 0; i < blinks; i++ {
-		start := time.Now()
-		newints := []int{}
-		for _, s := range ints {
-			newints = append(newints, performRules(s)...)
-		}
-		end := time.Now()
-		fmt.Println("Blink", i, "took", end.Sub(start), "len", len(newints))
-		ints = newints
+	start := time.Now()
+	total := 0
+	for _, s := range ints {
+		total += dfs(s, 0)
 	}
 
-	fmt.Println(len(ints))
+	end := time.Now()
+	fmt.Println("Total", total, "took", end.Sub(start))
 }
 
 func main() {
