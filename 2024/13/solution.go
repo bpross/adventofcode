@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"regexp"
 	"strconv"
 
@@ -16,7 +17,7 @@ var (
 const defaultCost = 1000000
 
 type button struct {
-	x, y int
+	x, y int64
 }
 
 func buttonFromString(s string) button {
@@ -30,11 +31,11 @@ func buttonFromString(s string) button {
 		panic(err)
 	}
 
-	return button{x, y}
+	return button{int64(x), int64(y)}
 }
 
 type prize struct {
-	x, y int
+	x, y int64
 }
 
 func prizeFromString(s string) prize {
@@ -47,7 +48,7 @@ func prizeFromString(s string) prize {
 	if err != nil {
 		panic(err)
 	}
-	return prize{x, y}
+	return prize{int64(x), int64(y)}
 }
 
 type game struct {
@@ -56,13 +57,34 @@ type game struct {
 	p prize
 }
 
+func (g game) Cramers() (float64, float64) {
+	det := float64(g.a.x*g.b.y - g.a.y*g.b.x)
+	if det == 0 {
+		return 0, 0
+	}
+	detX := float64(g.p.x*g.b.y - g.p.y*g.b.x)
+	detY := float64(g.a.x*g.p.y - g.a.y*g.p.x)
+
+	ansX, ansY := detX/det, detY/det
+	a, f := math.Modf(ansX)
+	if f != 0.0 {
+		return 0, 0
+	}
+	b, f := math.Modf(ansY)
+	if f != 0.0 {
+		return 0, 0
+	}
+
+	return a * 3, b
+}
+
 type move struct {
 	button button
 }
 
 type state struct {
 	moves              []move
-	x, y               int
+	x, y               int64
 	aPresses, bPresses int
 }
 
@@ -74,7 +96,7 @@ func (s state) cost() int {
 	return s.aPresses*3 + s.bPresses
 }
 
-func permutations(buttons []button, finalX, finalY int) int {
+func permutations(buttons []button, finalX, finalY int64) int {
 	lowestCost := defaultCost
 	cache := map[cacheKey]struct{}{}
 
@@ -156,6 +178,33 @@ func part1() {
 	fmt.Println(total)
 }
 
+func part2() {
+	games := []game{}
+	lineFunc := func(lines []string, _ []int) error {
+		a := buttonFromString(lines[0])
+		b := buttonFromString(lines[1])
+		p := prizeFromString(lines[2])
+		p.x += 10000000000000
+		p.y += 10000000000000
+
+		games = append(games, game{a, b, p})
+		return nil
+	}
+	err := utils.ReadFileInChunks("input.txt", 3, lineFunc)
+	if err != nil {
+		panic(err)
+	}
+
+	total := float64(0)
+	for _, g := range games {
+		a, b := g.Cramers()
+		total += a + b
+	}
+
+	fmt.Println(int64(total))
+}
+
 func main() {
 	part1()
+	part2()
 }
