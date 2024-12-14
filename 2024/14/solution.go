@@ -51,6 +51,37 @@ func (r *robot) getQuad(width, height int) int {
 	return 4
 }
 
+func createGrid(width, height int) [][]int {
+	grid := make([][]int, height)
+	for i := 0; i < height; i++ {
+		row := make([]int, width)
+		for j := 0; j < width; j++ {
+			row[j] = 0
+		}
+		grid[i] = row
+	}
+	return grid
+}
+
+func addRobots(grid [][]int, robots []*robot) {
+	for _, r := range robots {
+		grid[r.r][r.c]++
+	}
+}
+
+func printGrid(grid [][]int) {
+	for _, row := range grid {
+		for _, cell := range row {
+			if cell > 0 {
+				fmt.Print("#")
+			} else {
+				fmt.Print(".")
+			}
+		}
+		fmt.Println()
+	}
+}
+
 func part1() {
 	robots := make([]*robot, 0)
 	lineFunc := func(line string, _ int) error {
@@ -109,6 +140,58 @@ func part1() {
 	fmt.Println(total)
 }
 
+func part2() {
+	robots := make([]*robot, 0)
+	lineFunc := func(line string, _ int) error {
+		matches := robotRe.FindStringSubmatch(line)
+		x, err := strconv.Atoi(matches[1])
+		if err != nil {
+			panic(err)
+		}
+		y, err := strconv.Atoi(matches[2])
+		if err != nil {
+			panic(err)
+		}
+		xNeg := matches[3] == "-"
+		xv, err := strconv.Atoi(matches[4])
+		if err != nil {
+			panic(err)
+		}
+		if xNeg {
+			xv = -xv
+		}
+		yNeg := matches[5] == "-"
+		yv, err := strconv.Atoi(matches[6])
+		if err != nil {
+			panic(err)
+		}
+		if yNeg {
+			yv = -yv
+		}
+		robots = append(robots, &robot{xv, yv, x, y})
+		return nil
+	}
+
+	err := utils.ReadFile("input.txt", lineFunc)
+	if err != nil {
+		panic(err)
+	}
+
+	width, height := 101, 103
+	for i := 0; i < width*height; i++ {
+		for _, r := range robots {
+			r.move(width, height)
+		}
+
+		grid := createGrid(width, height)
+		addRobots(grid, robots)
+		printGrid(grid)
+
+		fmt.Println()
+	}
+}
+
 func main() {
+	part1()
 	part1()
 }
