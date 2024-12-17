@@ -21,3 +21,11 @@ func Factorial(number int) int {
 	// return the factorial of the current number
 	return factorialOfNumber
 }
+
+func Pow(base, exponent int) int {
+	result := 1
+	for i := 0; i < exponent; i++ {
+		result *= base
+	}
+	return result
+}
