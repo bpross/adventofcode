@@ -145,6 +145,63 @@ func part1() {
 	fmt.Println(dijkstra(grid, start, end))
 }
 
+func part2() {
+	grid := make([][]string, 0)
+
+	size := 71
+	for i := 0; i < size; i++ {
+		row := make([]string, size)
+		for j := 0; j < size; j++ {
+			row[j] = "."
+		}
+		grid = append(grid, row)
+	}
+
+	cords := []position{}
+	lineFunc := func(line string, _ int) error {
+		cord := strings.Split(line, ",")
+		c, err := strconv.Atoi(cord[0])
+		if err != nil {
+			panic(err)
+		}
+		r, err := strconv.Atoi(cord[1])
+		if err != nil {
+			panic(err)
+		}
+
+		cords = append(cords, position{r, c})
+		return nil
+	}
+
+	err := utils.ReadFile("input.txt", lineFunc)
+	if err != nil {
+		panic(err)
+	}
+	for _, row := range grid {
+		fmt.Println(strings.Join(row, ""))
+	}
+
+	for i := 0; i < 1024; i++ {
+		grid[cords[i].x][cords[i].y] = "#"
+	}
+	cords = cords[1024:]
+
+	start := position{0, 0}
+	end := position{size - 1, size - 1}
+	fmt.Println(start, end)
+	fmt.Println(dijkstra(grid, start, end))
+
+	path := dijkstra(grid, start, end)
+	for path != 0 {
+		cord := cords[0]
+		fmt.Println(cord)
+		grid[cords[0].x][cords[0].y] = "#"
+		cords = cords[1:]
+		path = dijkstra(grid, start, end)
+	}
+}
+
 func main() {
-	part1()
+	// part1()
+	part2()
 }
