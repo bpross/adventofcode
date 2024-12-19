@@ -28,6 +28,34 @@ func canBeMade(patterns []string, design string) bool {
 	return dfs("")
 }
 
+func waysCanBeMade(patterns []string, design string) int {
+	var dfs func(path string) int
+	cache := map[string]int{}
+
+	dfs = func(path string) int {
+		if path == design {
+			return 1
+		}
+		if !strings.HasPrefix(design, path) {
+			return 0
+		}
+		if v, ok := cache[path]; ok {
+			return v
+		}
+
+		total := 0
+		for _, p := range patterns {
+			newPath := path + p
+			t := dfs(newPath)
+			cache[newPath] = t
+			total += t
+		}
+		return total
+	}
+
+	return dfs("")
+}
+
 func part1() {
 	patterns := []string{}
 	designs := []string{}
@@ -68,6 +96,45 @@ func part1() {
 	fmt.Println(total)
 }
 
+func part2() {
+	patterns := []string{}
+	designs := []string{}
+	b := false
+
+	lineFunc := func(line string, r int) error {
+		if line == "" {
+			b = true
+			return nil
+		}
+
+		if b {
+			line = strings.TrimSpace(line)
+			designs = append(designs, line)
+			return nil
+		}
+
+		row := strings.Split(line, ",")
+		for _, p := range row {
+			ps := strings.TrimSpace(p)
+			patterns = append(patterns, ps)
+		}
+
+		return nil
+	}
+
+	err := utils.ReadFile("input.txt", lineFunc)
+	if err != nil {
+		panic(err)
+	}
+
+	total := 0
+	for _, d := range designs {
+		total += waysCanBeMade(patterns, d)
+	}
+	fmt.Println(total)
+}
+
 func main() {
 	part1()
+	part2()
 }
